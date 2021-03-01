@@ -46,19 +46,20 @@ namespace RemoteThreadProcessInjection
         static void Main(string[] args)
         {
 
-            if (args.Length < 3)
+            if (args.Length < 2)
             {
                 Console.Write("Usage: remotethread <pid> <dllpath>\n");
+                return;
             }
 
-            uint pid = UInt32.Parse(args[1]);
+            uint pid = (uint) Int32.Parse(args[0]);
             IntPtr hProcess = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ | PROCESS_CREATE_THREAD, false, pid);
 
             IntPtr memLoc = (IntPtr) null;
             IntPtr buffer = VirtualAllocEx(hProcess, memLoc, 1 << 12, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
             int output;
-            WriteProcessMemory(hProcess, buffer, System.Text.Encoding.UTF8.GetBytes(args[2]), (UInt32)args[2].Length, out output);
+            WriteProcessMemory(hProcess, buffer, System.Text.Encoding.UTF8.GetBytes(args[1]), (UInt32)args[1].Length, out output);
 
             IntPtr lpThreadId = (IntPtr) null;
             IntPtr hThread = CreateRemoteThread(hProcess, (IntPtr)null, 0, GetProcAddress(GetModuleHandle("kernel32"), "LoadLibraryA"), buffer, 0, lpThreadId);
